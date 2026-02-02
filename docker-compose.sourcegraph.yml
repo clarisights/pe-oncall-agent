@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  git-daemon:
+    image: alpine/git:latest
+    restart: unless-stopped
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        apk add --no-cache git-daemon >/dev/null
+        git config --global daemon.receivepack false
+        exec git daemon \
+          --reuseaddr \
+          --base-path=/repos \
+          --export-all \
+          --informative-errors \
+          --verbose \
+          /repos
+    command: []
+    volumes:
+      - ./sourcegraph-data/repos:/repos:rw
+    ports:
+      - "9418:9418"
+
+  sourcegraph:
+    image: sourcegraph/server:5.2.0
+    restart: unless-stopped
+    depends_on:
+      - git-daemon
+    environment:
+      SRC_ADMIN_EMAIL: you@company.com
+    ports:
+      - "7080:7080"
+      - "2633:2633"
+    volumes:
+      - ./sourcegraph-data:/var/opt/sourcegraph:rw

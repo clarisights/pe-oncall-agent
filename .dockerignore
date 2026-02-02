@@ -1,0 +1,9 @@
+.git
+.venv
+__pycache__
+/repos
+/sourcegraph-data
+/adwyze
+/adwyze-frontend
+*.pyc
+*.log

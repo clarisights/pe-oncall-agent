@@ -1,0 +1,54 @@
+services:
+  git-daemon:
+    image: alpine/git:latest
+    restart: unless-stopped
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        apk add --no-cache git-daemon >/dev/null
+        git config --global daemon.receivepack false
+        exec git daemon \
+          --reuseaddr \
+          --base-path=/repos \
+          --export-all \
+          --informative-errors \
+          --verbose \
+          /repos
+    command: []
+    volumes:
+      - ./sourcegraph-data/repos:/repos:rw
+    ports:
+      - "9418:9418"
+
+  sourcegraph:
+    image: sourcegraph/server:5.2.0
+    restart: unless-stopped
+    depends_on:
+      - git-daemon
+    environment:
+      SRC_ADMIN_EMAIL: mihir.khandekar@clarisights.com
+    ports:
+      - "7080:7080"
+      - "2633:2633"
+    volumes:
+      - ./sourcegraph-data:/var/opt/sourcegraph:rw
+
+  bot:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - sourcegraph
+    env_file:
+      - .env
+    environment:
+      SOURCEGRAPH_URL: http://sourcegraph:7080
+      CODEX_CLI_PATH: codex
+      TRIAGE_REPO_BASE: /app/repos
+    volumes:
+      - ../adwyze:/app/repos/adwyze:ro
+      - ../adwyze-frontend:/app/repos/adwyze-frontend:ro
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"

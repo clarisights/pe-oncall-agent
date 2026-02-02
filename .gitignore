@@ -1,0 +1,7 @@
+.venv/
+.env
+.zuliprc
+sourcegraph-data/
+repos/
+__pycache__/
+*.pyc
