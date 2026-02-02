@@ -151,7 +151,7 @@ Once v1 reliably summarizes incidents, we can expand into:
 - FastAPI bot with Zulip poller, incident store, and commands (`status`, `rerun`).
 - Sourcegraph-backed code search and file reads (git daemon + mirrors + compose stack) when `SOURCEGRAPH_*` vars are provided.
 - Codex CLI integration with structured prompts + logging of prompt length, evidence sample, confidence.
-- Dynamic keyword extraction; service hints temporarily disabled until they are retrained.
+- Dynamic keyword extraction; legacy service hints proved noisy/broken and are currently disabled pending a redesign.
 - `/product` command for doc lookups alongside RCA replies.
 - README instructions + scripts for syncing repo mirrors and running Sourcegraph/git-daemon/bot services.
 
